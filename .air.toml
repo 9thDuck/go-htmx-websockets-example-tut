@@ -1,0 +1,41 @@
+root = "."
+tmp_dir = "tmp"
+
+[build]
+# The main.go file is in the cmd directory
+cmd = "go build -o ./tmp/main ./cmd/main.go"
+# Binary file yields from `cmd`.
+bin = "tmp/main"
+# Customize binary.
+full_bin = "./tmp/main"
+# Watch these file extensions
+include_ext = ["go", "tpl", "tmpl", "html"]
+# Ignore these directories
+exclude_dir = ["assets", "tmp", "vendor"]
+# Watch these directories
+include_dir = ["cmd", "internal", "htmx"]
+# Exclude files
+exclude_file = []
+# It's not necessary to trigger build each time file changes if it's too frequent.
+delay = 1000 # ms
+# Stop running old binary when build errors occur.
+stop_on_error = true
+# Send Interrupt signal before killing process (windows does not support this feature)
+send_interrupt = false
+# Delay after sending Interrupt signal
+kill_delay = 500 # ms
+
+[log]
+# Show log time
+time = true
+
+[color]
+# Customize each part's color. If no color found, use the raw app log.
+main = "magenta"
+watcher = "cyan"
+build = "yellow"
+runner = "green"
+
+[misc]
+# Delete tmp directory on exit
+clean_on_exit = true
