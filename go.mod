@@ -2,7 +2,10 @@ module github.com/sigrdrifa/go-htmx-websockets-example
 
 go 1.22.2
 
-require github.com/shirou/gopsutil v2.21.11+incompatible
+require (
+	github.com/coder/websocket v1.8.12
+	github.com/shirou/gopsutil v2.21.11+incompatible
+)
 
 require (
 	github.com/go-ole/go-ole v1.2.6 // indirect
