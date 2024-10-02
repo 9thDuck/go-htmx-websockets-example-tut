@@ -53,7 +53,7 @@ func (s *server) subscribe(ctx context.Context, writer http.ResponseWriter, req 
 				return err
 			}
 		case <-ctx.Done():
-			return ctx.Err()
+			return nil
 		}
 	}
 }
