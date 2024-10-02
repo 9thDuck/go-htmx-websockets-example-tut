@@ -2,27 +2,35 @@ package main
 
 import (
 	"fmt"
+	"time"
 
 	"github.com/sigrdrifa/go-htmx-websockets-example/internal/hardware"
+	"github.com/sigrdrifa/go-htmx-websockets-example/internal/utils"
 )
 
 func main() {
-  fmt.Println("Starting system monitor..")
-  systemSection, err := hardware.GetSystemSection()
-  if err != nil {
-    fmt.Println(err)
-  }
+	fmt.Print("Starting system monitor..\n\n")
 
-  diskSection, err := hardware.GetDiskSection()
-  if err != nil {
-    fmt.Println(err)
-  }
-  cpuSection, err := hardware.GetCpuSection()
-  if err != nil {
-    fmt.Println(err)
-  }
+	go func() {
+		for {
+			systemSection, err := hardware.GetSystemSection()
+			utils.ThrowOnError("systemSection", err)
 
-  fmt.Println(systemSection)
-  fmt.Println(diskSection)
-  fmt.Println(cpuSection)
+			diskSection, err := hardware.GetDiskSection()
+			utils.ThrowOnError("diskSection", err)
+
+			cpuSection, err := hardware.GetCpuSection()
+			utils.ThrowOnError("cpuSection", err)
+
+			fmt.Println(systemSection)
+			fmt.Println(diskSection)
+			fmt.Println(cpuSection)
+			fmt.Println()
+			fmt.Println()
+			time.Sleep(time.Second * 3)
+		}
+	}()
+
+	time.Sleep(time.Minute * 5)
+
 }
