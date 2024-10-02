@@ -108,14 +108,12 @@ func main() {
 			<div hx-swap-oob="innerHTML:#cpu-data">` + cpuSection + `</div>
 			`
 			s.broadcast([]byte(html))
-			// s.broadcast([]byte(diskSection))
-			// s.broadcast([]byte(cpuSection))
 
 			time.Sleep(time.Second)
 		}
 	}(srv)
 
-	PORT := "8080"
+	PORT := "3001"
 	err := http.ListenAndServe(fmt.Sprintf(":%s", PORT), &srv.mux)
 	utils.ThrowOnError("server listening", err)
 	fmt.Println("Server listening at")
