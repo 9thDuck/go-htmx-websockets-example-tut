@@ -7,10 +7,16 @@ import (
 	"sync"
 	"time"
 
+	"embed"
+
+	"github.com/9thDuck/go-htmx-websockets-example-tut/internal/hardware"
+
+	"github.com/9thDuck/go-htmx-websockets-example-tut/internal/utils"
 	"github.com/coder/websocket"
-	"github.com/sigrdrifa/go-htmx-websockets-example/internal/hardware"
-	"github.com/sigrdrifa/go-htmx-websockets-example/internal/utils"
 )
+
+//go:embed htmx
+var staticFiles embed.FS
 
 type subscriber struct {
 	msgs chan []byte
@@ -53,7 +59,12 @@ func (s *server) subscribe(ctx context.Context, writer http.ResponseWriter, req 
 				return err
 			}
 		case <-ctx.Done():
-			return nil
+			if err := ctx.Err(); err.Error() != "context canceled" {
+				return err
+			} else {
+				s.removeSubscriber(subscriber, err.Error())
+				return nil
+			}
 		}
 	}
 }
@@ -65,12 +76,20 @@ func (s *server) addSubscriber(sub *subscriber) {
 	fmt.Println("Added subscriber", *sub)
 }
 
+func (s *server) removeSubscriber(sub *subscriber, reason string) {
+	s.subscribersMutex.Lock()
+	defer s.subscribersMutex.Unlock()
+	delete(s.subscribers, sub)
+	fmt.Printf("Removed subscriber %v, reason: %s\n", *sub, reason)
+}
+
 func NewServer() *server {
 	s := &server{
 		subscriberMessageBuffer: 10,
 		subscribers:             make(map[*subscriber]struct{}),
 	}
-	s.mux.Handle("/", http.FileServer(http.Dir("./htmx")))
+
+	s.mux.Handle("/", http.FileServer(http.FS(staticFiles)))
 	s.mux.HandleFunc("/ws", s.subscribeHandler)
 
 	return s

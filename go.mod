@@ -1,4 +1,4 @@
-module github.com/sigrdrifa/go-htmx-websockets-example
+module github.com/9thDuck/go-htmx-websockets-example-tut
 
 go 1.22.2
 
