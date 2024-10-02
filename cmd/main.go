@@ -76,10 +76,20 @@ func NewServer() *server {
 	return s
 }
 
+func (s *server) broadcast(msg []byte) {
+	s.subscribersMutex.Lock()
+	for sub := range s.subscribers {
+		sub.msgs <- msg
+	}
+	s.subscribersMutex.Unlock()
+}
+
 func main() {
 	fmt.Print("Starting system monitor..\n\n")
 
-	go func() {
+	srv := NewServer()
+
+	go func(s *server) {
 		for {
 			systemSection, err := hardware.GetSystemSection()
 			utils.ThrowOnError("systemSection", err)
@@ -90,16 +100,21 @@ func main() {
 			cpuSection, err := hardware.GetCpuSection()
 			utils.ThrowOnError("cpuSection", err)
 
-			fmt.Println(systemSection)
-			fmt.Println(diskSection)
-			fmt.Println(cpuSection)
-			fmt.Print("\n\n")
+			timestamp := time.Now().Format("2006-01-02 15:04:05")
+			html := `
+			<div hx-swap-oob="innerHTML:#update-timestamp">` + timestamp + `</div>
+			<div hx-swap-oob="innerHTML:#system-data">` + systemSection + `</div>
+			<div hx-swap-oob="innerHTML:#disk-data">` + diskSection + `</div>
+			<div hx-swap-oob="innerHTML:#cpu-data">` + cpuSection + `</div>
+			`
+			s.broadcast([]byte(html))
+			// s.broadcast([]byte(diskSection))
+			// s.broadcast([]byte(cpuSection))
 
 			time.Sleep(time.Second)
 		}
-	}()
+	}(srv)
 
-	srv := NewServer()
 	PORT := "8080"
 	err := http.ListenAndServe(fmt.Sprintf(":%s", PORT), &srv.mux)
 	utils.ThrowOnError("server listening", err)
