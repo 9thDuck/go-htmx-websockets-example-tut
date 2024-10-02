@@ -24,8 +24,8 @@ func GetSystemSection() (string, error) {
 	}
 
 	output :=
-		fmt.Sprintf("Hostname: %s\nTotal Memory: %d\nOS: %s",
-			hostStat.Hostname, vmStat.Total, runTimeOS)
+		fmt.Sprintf("Hostname: %s\nTotal Memory: %d\nFree Memory: %d\nOS: %s",
+			hostStat.Hostname, vmStat.Total, vmStat.Available, runTimeOS)
 
 	return output, nil
 }
